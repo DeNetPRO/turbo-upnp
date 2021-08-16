@@ -7,7 +7,7 @@ go get -u github.com/DeNetPRO/turbo-upnp
 ## Usage
 ```golang
 //initializes internet gateway device
-device := fastupnp.InitDevice()
+device := upnp.InitDevice()
 
 // forward port
 description := "test"
