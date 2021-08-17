@@ -1,3 +1,6 @@
+# Turbo-UpnP
+[![Go Reference](https://pkg.go.dev/badge/github.com/DeNetPRO/turbo-upnp.svg)](https://pkg.go.dev/github.com/DeNetPRO/turbo-upnp)
+
 ## Installation
 Remember to enable UPnP on your router!
 
