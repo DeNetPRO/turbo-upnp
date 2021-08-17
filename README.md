@@ -1,4 +1,5 @@
 ## Installation
+Remember to enable UPnP on your router!
 
 ```bash
 go get -u github.com/DeNetPRO/turbo-upnp
@@ -6,6 +7,8 @@ go get -u github.com/DeNetPRO/turbo-upnp
 
 ## Usage
 ```golang
+import upnp "github.com/DeNetPRO/turbo-upnp"
+
 //initializes internet gateway device
 device := upnp.InitDevice()
 

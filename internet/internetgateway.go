@@ -12,93 +12,72 @@ const (
 	URN_WANConnectionDevice_1 = "urn:schemas-upnp-org:device:WANConnectionDevice:1"
 	URN_WANDevice_1           = "urn:schemas-upnp-org:device:WANDevice:1"
 
-	URN_WANIPConnection_1  = "urn:schemas-upnp-org:service:WANIPConnection:1"
-	URN_WANPPPConnection_1 = "urn:schemas-upnp-org:service:WANPPPConnection:1"
+	URN_WANIPConnection_1 = "urn:schemas-upnp-org:service:WANIPConnection:1"
 
 	AddPortMappingAction       = "AddPortMapping"
 	DeletePortMappingAction    = "DeletePortMapping"
 	GetExternalIPAddressAction = "GetExternalIPAddress"
 )
 
-func AddPortMapping(NewRemoteHost, NewInternalClient, NewProtocol, NewPortMappingDescription string, NewExternalPort, NewInternalPort uint16, NewEnabled bool, NewLeaseDuration uint32, clientURL *url.URL) error {
+func AddPortMapping(newRemoteHost, newInternalClient, newProtocol, newPortMappingDescription string, newExternalPort, newInternalPort uint16, newEnabled bool, newLeaseDuration uint32, clientURL *url.URL) error {
 	if clientURL == nil {
 		return errors.New("url is empty")
 	}
-	type addRequest struct {
-		NewRemoteHost             string
-		NewExternalPort           string
-		NewProtocol               string
-		NewInternalPort           string
-		NewInternalClient         string
-		NewEnabled                string
-		NewPortMappingDescription string
-		NewLeaseDuration          string
-	}
 
-	exPort, err := soap.MarshalU16(NewExternalPort)
+	exPort, err := soap.MarshalU16(newExternalPort)
 	if err != nil {
 		return err
 	}
 
-	inPort, err := soap.MarshalU16(NewInternalPort)
+	inPort, err := soap.MarshalU16(newInternalPort)
 	if err != nil {
 		return err
 	}
 
-	duration, err := soap.MarshalU32(NewLeaseDuration)
+	duration, err := soap.MarshalU32(newLeaseDuration)
 	if err != nil {
 		return err
 	}
 
-	request := addRequest{
-		NewRemoteHost:             NewRemoteHost,
-		NewExternalPort:           exPort,
-		NewProtocol:               NewProtocol,
-		NewInternalPort:           inPort,
-		NewInternalClient:         NewInternalClient,
-		NewEnabled:                soap.MarshalBoolean(NewEnabled),
-		NewPortMappingDescription: NewPortMappingDescription,
-		NewLeaseDuration:          duration,
+	params := map[string]string{
+		"NewRemoteHost":             newRemoteHost,
+		"NewExternalPort":           exPort,
+		"NewProtocol":               newProtocol,
+		"NewInternalPort":           inPort,
+		"NewInternalClient":         newInternalClient,
+		"NewEnabled":                soap.MarshalBoolean(newEnabled),
+		"NewPortMappingDescription": newPortMappingDescription,
+		"NewLeaseDuration":          duration,
 	}
 
-	response := interface{}(nil)
-
-	if err = soap.PerformAction(URN_WANPPPConnection_1, AddPortMappingAction, clientURL, request, response); err != nil {
-		return err
+	action := &soap.SoapAction{
+		Params: params,
 	}
 
-	return nil
+	return soap.PerformAction(AddPortMappingAction, clientURL, action, nil)
 }
 
-func DeletePortMapping(NewRemoteHost string, NewExternalPort uint16, NewProtocol string, clientURL *url.URL) error {
+func DeletePortMapping(newRemoteHost string, newExternalPort uint16, newProtocol string, clientURL *url.URL) error {
 	if clientURL == nil {
 		return errors.New("url is empty")
 	}
 
-	type deleteRequest struct {
-		NewRemoteHost   string
-		NewExternalPort string
-		NewProtocol     string
-	}
-
-	port, err := soap.MarshalU16(NewExternalPort)
+	port, err := soap.MarshalU16(newExternalPort)
 	if err != nil {
 		return err
 	}
 
-	request := deleteRequest{
-		NewRemoteHost:   NewRemoteHost,
-		NewProtocol:     NewProtocol,
-		NewExternalPort: port,
+	params := map[string]string{
+		"NewRemoteHost":   newRemoteHost,
+		"NewExternalPort": port,
+		"NewProtocol":     newProtocol,
 	}
 
-	response := interface{}(nil)
-
-	if err := soap.PerformAction(URN_WANPPPConnection_1, DeletePortMappingAction, clientURL, request, response); err != nil {
-		return err
+	action := &soap.SoapAction{
+		Params: params,
 	}
 
-	return nil
+	return soap.PerformAction(DeletePortMappingAction, clientURL, action, nil)
 }
 
 func GetExternalIPAddress(clientURL *url.URL) (string, error) {
@@ -106,13 +85,13 @@ func GetExternalIPAddress(clientURL *url.URL) (string, error) {
 		return "", errors.New("url is empty")
 	}
 
-	request := interface{}(nil)
-
-	response := &struct {
+	type responseAction struct {
 		NewExternalIPAddress string
-	}{}
+	}
 
-	if err := soap.PerformAction(URN_WANPPPConnection_1, GetExternalIPAddressAction, clientURL, request, response); err != nil {
+	response := &responseAction{}
+
+	if err := soap.PerformAction(GetExternalIPAddressAction, clientURL, nil, response); err != nil {
 		return "", err
 	}
 
